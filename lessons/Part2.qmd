@@ -1,19 +1,24 @@
 ---
-title: "Declaring a Design"
+title: "Declaring a Design with DeclareDesign"
 format: html
 editor: visual
 ---
 
-The R package `DeclareDesign` provides a suite of tools to declare, diagnose, and redesign a research design. `DeclareDesign` is designed around the MIDA framework.
+Alright, we have a research idea and some ideas of how it might fit into the MIDA framework. Before we actually embark on the design, we often want to know whether or not what we have written down will actually work. The R package `DeclareDesign` provides a suite of tools to declare, diagnose, and redesign a research design. `DeclareDesign` is designed around the MIDA framework.
+
+Load the packages required the workshop with the following code.
 
 ```{r}
 #| echo: false 
 #| message: false 
 #| warning: false
+# install.packages(c("tidyverse", "DeclareDesign"))
 
 library(DeclareDesign)
 library(tidyverse)
 ```
+
+The point of DeclareDesign is to *declare a design*, which means that we declare in code each part of the MIDA framework. There are two advantages to code declarations. The first is that we clearly specify what we are going to do. While that is valuable for the reason that the previous exercise is valuable, putting down our ideas in code gives us another advantage. We can *diagnose* the design to determine whether it actually will achieve what we want it to do. For example, we can find out ahead of time whether the number of subject we have in mind for an experiment is large enough to be confident in the answer.
 
 ## Declaring a Model
 
@@ -67,15 +72,8 @@ The `conditions` argument in the function shows us all the values that Z could t
 Amend the previous declaration so that Z can take on four values, 25, 50, 75, 100. What does the resulting data frame output look like?
 
 ```{r}
-M_4Z = ...
+M_4Z = ... ## replace ... with answer
 
-## TODO Move me to solutions 
-M_4Z = declare_model(
-  N = 100,
-  Noise = rnorm(N),
-  potential_outcomes(Y ~ 0.1*Z + Noise,
-                     conditions = list(Z = c(25,50,75,100)))
-)
 ```
 
 ### Challenge
@@ -85,14 +83,6 @@ A type of experiment known as a factorial design randomly assigns multiple treat
 ```{r}
 M_factorial = ...
 
-## TODO Move me to Solutions 
-M2 = declare_model(
-  N = 100,
-  Noise = rnorm(N),
-  potential_outcomes(Y ~ Z1 + 2*Z2 + 10*Z1*Z2 + Noise,
-                     conditions = list(Z1 = c(0,1),
-                                       Z2 = c(0,1)))
-)
 ```
 
 ## Inquiry
@@ -125,8 +115,6 @@ I_mult = declare_inquiry(ATE = mean(Y_Z_1 - Y_Z_0),
 #### Challenge
 
 Post an example of an ATE in your research domain in the chat. Can you think of a conditional average treatment effect that might be interesting?
-
-\*\*EXAMPLE: A RESEARCHER IS INTERESTED IN THE AVERAGE TREATMENT EFFECT OF AN EXPERIMENT THAT MANIPULATES VOTER INFORMATION. WE MIGHT BE INTERESTED IN KNOWING THE AVERAGE CHANGE IN VOTING (AN ATE), AND THE AVERAGE CHANGE BETWEEN URBAN AND RURAL VOTERS (A CATE).
 
 ### Data Strategy
 
@@ -245,9 +233,9 @@ sims_d |>
 
 We see from this chart that this design is unbiased, as the chart is centered on the true estimand of 0.1.
 
-#### Challenge 
+#### Challenge
 
-How powerful is our design? We often can show this with a *power curve* where we display the probability of achieving statistical significance along different possible effect sizes. For design purposes, a run is *significant* if it identifies a significant effect at a given threshold, usually when the p.value $$\leq$$ 0.05, and 0 otherwise. To test this out, we have provided some starter code for a model declaration.
+How powerful is our design? We often can show this with a *power curve* where we display the probability of achieving statistical significance along different possible effect sizes. For design purposes, a run is *significant* if it identifies a significant effect at a given threshold, usually when the p.value $\leq$ 0.05, and 0 otherwise. To test this out, we have provided some starter code for a model declaration.
 
 ```{r}
 #| warning: false
