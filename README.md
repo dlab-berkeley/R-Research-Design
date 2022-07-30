@@ -1,6 +1,6 @@
 # D-Lab's R Research Design Workshop
 
-This repository contains the materials for D-Lab's Research Design with R workshop. Prior experience with [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) and [R Data Wrangling](https://github.com/dlab-berkeley/R-wrang) is assumed.
+This repository contains the materials for D-Lab's Research Design with R workshop. Prior experience with the material in [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals) and [R Data Wrangling](https://github.com/dlab-berkeley/R-wrang) is preferred.
 
 ## Workshop Goals
 
@@ -49,13 +49,11 @@ The DataHub downloads this repository, along with any necessary packages, and al
 
 Check out the following resources to learn more about data visualization and R:
 
-* [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/)  
-* [The tidyverse style guide](http://style.tidyverse.org/)  
-* [Software Carpentry](https://swcarpentry.github.io/) 
-* [Quick-R](http://statmethods.net/)  
-* [UCLA idre](https://stats.idre.ucla.edu/r/)  
-* [R-bloggers](https://www.r-bloggers.com/)  
-* [Stack Overflow - R](http://stackoverflow.com/questions/tagged/r)  
+* [Field Experiments: Design, Analysis, and Interpretation](https://wwnorton.com/books/9780393979954)  
+* [Evidence in Governing and Policy Methods Guides](https://egap.org/methods-guides/)  
+* [Open Science Framework](https://osf.io/) 
+* [Impact Evaluation in Practice](https://www.worldbank.org/en/programs/sief-trust-fund/publication/impact-evaluation-in-practice)  
+* [Causal Inference: The Mixtape](https://mixtape.scunning.com/)
 
 # About the UC Berkeley D-Lab
 
@@ -69,7 +67,7 @@ Here are other R workshops offered by the D-Lab:
 
 ## Basic Competency
 
-* [Fast-R](https://github.com/dlab-berkeley/Fast-R)
+* [R Fundamentals](https://github.com/dlab-berkeley/R-Fundamentals)
 * [R Data Wrangling](https://github.com/dlab-berkeley/R-wrang)
 * [R Functional Programming](https://github.com/dlab-berkeley/R-functional-programming)
 * [Geospatial Fundamentals in R with sf](https://github.com/dlab-berkeley/Geospatial-Fundamentals-in-R-with-sf)
@@ -85,9 +83,5 @@ Here are other R workshops offered by the D-Lab:
 
 # Contributors
 * [Alexander Stephenson](https://dlab.berkeley.edu/people/alex-stephenson)
-* [Pratik Sachdeva](https://dlab.berkeley.edu/people/pratik-sachdeva)
-* [Evan Muzzall](https://dlab.berkeley.edu/people/evan-muzzall)
-* Lawrence Yin Tello
-* Josh Quan
 
-Thanks to [Software Carpentry](http://software-carpentry.org/workshops/), Chris Paciorek, Rochelle Terman, and the [R-bootcamp](https://dlab.berkeley.edu/training/r-bootcamp-3) for inspiration.
+
