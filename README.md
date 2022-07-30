@@ -50,6 +50,7 @@ The DataHub downloads this repository, along with any necessary packages, and al
 Check out the following resources to learn more about data visualization and R:
 
 * [Field Experiments: Design, Analysis, and Interpretation](https://wwnorton.com/books/9780393979954)  
+* [Research Design: Declare, Diagnose, Redesign](https://book.declaredesign.org/index.html)
 * [Evidence in Governing and Policy Methods Guides](https://egap.org/methods-guides/)  
 * [Open Science Framework](https://osf.io/) 
 * [Impact Evaluation in Practice](https://www.worldbank.org/en/programs/sief-trust-fund/publication/impact-evaluation-in-practice)  
