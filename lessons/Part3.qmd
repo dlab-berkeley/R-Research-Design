@@ -1,7 +1,17 @@
 ---
-title: "Main Analyses"
+title: "Writing a Pre-Analysis Plan"
 format: html
 editor: visual
 ---
 
-## Running Your Main Analysis
+## Goal 
+
+Pre-Analysis Plans reason. Why designing ahead of time is useful
+
+## Integrating Code and Text 
+
+What a plan needs. How to write one.
+
+## Common Designs 
+
+The point of these common designs is to give you a flavor of how to write out common plans and use `DeclareDesign` to integrate with your Design Plan
