@@ -1,0 +1,109 @@
+---
+title: "Solutions"
+format: html
+editor: visual
+---
+
+#### Challenge 1
+
+Amend the previous declaration so that Z can take on four values, 25, 50, 75, 100. What does the resulting data frame output look like?
+
+```{r}
+M_4Z = declare_model(
+  N = 100,
+  Noise = rnorm(N),
+  potential_outcomes(Y ~ 0.1*Z + Noise,
+                     conditions = list(Z = c(25,50,75,100)))
+)
+```
+
+#### Challenge 2
+
+A type of experiment known as a factorial design randomly assigns multiple treatments. The standard design is a 2x2 factorial designs where there are two treatments and each treatment has two levels. Imagine that there is a treatment effect of **1** for the first treatment, **2** for the second, and **10** for the interaction. Declare the model with a population of size 100.
+
+```{r}
+M2 = declare_model(
+  N = 100,
+  Noise = rnorm(N),
+  potential_outcomes(Y ~ Z1 + 2*Z2 + 10*Z1*Z2 + Noise,
+                     conditions = list(Z1 = c(0,1),
+                                       Z2 = c(0,1)))
+)
+```
+
+#### Challenge 3
+
+Post an example of an ATE in your research domain in the chat. Can you think of a conditional average treatment effect that might be interesting?
+
+**EXAMPLE: A RESEARCHER IS INTERESTED IN THE AVERAGE TREATMENT EFFECT OF AN EXPERIMENT THAT MANIPULATES VOTER INFORMATION. WE MIGHT BE INTERESTED IN KNOWING THE AVERAGE CHANGE IN VOTING (AN ATE), AND THE AVERAGE CHANGE BETWEEN URBAN AND RURAL VOTERS (A CATE).**
+
+#### Challenge 4
+
+How powerful is our design? We often can show this with a *power curve* where we display the probability of achieving statistical significance along different possible effect sizes. For design purposes, a run is *significant* if it identifies a significant effect at a given threshold, usually when the p.value $\leq$ 0.05, and 0 otherwise. To test this out, we have provided some starter code for a model declaration.
+
+```{r}
+#| warning: false
+#| message: false
+powerful = declare_model(
+  N = 200,
+  Noise = rnorm(N),
+  # This line gets Z's from a uniform distribution of 0 to 1
+  potential_outcomes(Y ~ runif(1,0,1)*Z + Noise)
+) +
+  declare_inquiry(ATE = mean(Y_Z_1 -Y_Z_0)) +
+  declare_assignment(Z = complete_ra(N)) +
+  declare_measurement(Y = reveal_outcomes(Y~Z)) +
+  declare_estimator(Y~Z,
+                    .method = lm_robust,
+                    .summary = tidy,
+                    term = "Z",
+                    inquiry = "ATE", 
+                    label = "Regression"
+                    )
+
+## Diagnose and simulate the design
+## Create a variable 'sig' that determines whether a run was significant. mutate() is helpful here
+
+#power_sim = ...
+
+power_sim = diagnose_design(powerful) |>
+  get_simulations() |>
+  mutate(sig = if_else(p.value <= 0.05, 1, 0))
+
+## Plot code 
+power_sim |>
+  ggplot(aes(estimand, sig))+
+  geom_smooth(method = "loess")+
+  geom_hline(yintercept = 0.8,linetype = "dashed")+
+  ylim(c(0,1))+
+  labs(x = "True Effect Size",
+       y = "Diagnosed Statistical Power")
+```
+
+#### Challenge 5
+
+The most common threat to a valid inference about a population in a randomized sample is that some people will not respond. If the people who do not respond are also more/less likely to support new housing construction our survey will be biased. The literature often terms this "selection bias" because some survey respondents are selecting not to respond when sampled.
+
+Let's show this by adding some dependence to our answer. Suppose that individuals who support new housing construction (have a value of Y \> 3) do not answer our survey. What happens to the bias in our survey? *Hint: You should put another measurement declaration after sampling.*
+
+```{r}
+missingSurveyDeclaration = declare_model(data = housing) +
+  declare_measurement(Y = as.numeric(cut(Y_star,5))) +
+  declare_inquiry(Y_bar = mean(Y)) +
+  declare_sampling(S = complete_rs(N, n = 100)) +
+  declare_measurement(
+    Y = if_else(Y > 3, NA_real_, Y)
+  ) +
+  declare_estimator(
+    Y~1, 
+    inquiry = "Y_bar"
+  )
+
+diagnose_design(missingSurveyDeclaration, diagnosands = bias)
+```
+
+#### Challenge 6
+
+Use any of these designs to craft a data declaration relevant to your own research. Be sure to define the model, inquiry, data strategy, and answer. Feel free to share with other participants!
+
+**There are no correct answers here other than thinking through the framework.**

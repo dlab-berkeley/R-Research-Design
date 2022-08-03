@@ -14,6 +14,8 @@ We will use RStudio to go through the workshop materials, which requires install
 2. [Download RStudio](https://rstudio.com/products/rstudio/download/#download): Install RStudio Desktop. This should be free. Do this after you have already installed R. The D-Lab strongly recommends an RStudio edition of 2022.02.0+443 "Prairie Trillium" or higher.
 3. [Download these workshop materials](https://github.com/dlab-berkeley/R-Research-Design): 
 
+4. Make sure to install the `tidyverse` and `DeclareDesign` packages. 
+
 * Click the green "Code" button in the top right of the repository information.
 * Click "Download Zip".
 * Extract this file to a folder on your computer where you can easily access it (we recommend Desktop).

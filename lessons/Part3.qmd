@@ -1,17 +1,138 @@
 ---
-title: "Writing a Pre-Analysis Plan"
+title: "Common Research Designs in DeclareDesign"
 format: html
 editor: visual
 ---
 
-## Goal 
+## 
 
-Pre-Analysis Plans reason. Why designing ahead of time is useful
+In this part of the workshop, we will go over several common research design in the social sciences. The goal is to give you a flavor of how to write these designs in the context of the MIDA framework, and to potentially provide inspiration for your own work. The point of these common designs is to give you a flavor of how to write out common plans and use `DeclareDesign` to integrate with your design plan.
 
-## Integrating Code and Text 
+## Observational Designs
 
-What a plan needs. How to write one.
+### A survey example
 
-## Common Designs 
+We are often interested in a population quantity like the mean of a population. For example, we might want to know the average openness to new housing construction in a population. We cannot measure this directly, but we can potentially estimate it.
 
-The point of these common designs is to give you a flavor of how to write out common plans and use `DeclareDesign` to integrate with your Design Plan
+This is a descriptive inquiry:
+
+-   Our population is the city of Berkeley (population 123,000), and under our model the latent housing openness comes from a standard normal distribution.
+
+-   Our inquiry is the population mean of our measure. This is different than the mean of the latent variable because we do not have access to the latent measure.
+
+-   We have two components in the data strategy: the survey question that we ask, and the sampling procedure. Our survey question asks subjects to place themselves on a scale that varies from 1 (strongly opposed to new construction) to 5 (strongly open to new construction). The sampling procedure is "complete" random sampling. We will sample 100 subjects and every member of the Berkeley population has an equal probability of inclusion $$\frac{n}{N}$$.
+
+-   Our answer strategy is the sample mean estimator $$\bar{\hat{Y}} = \frac{1}{n}\sum_1^nY_i$$.
+
+Here is the design all put together.
+
+```{r}
+set.seed(123) ## to get the same answer 
+housing = data.frame(
+  N = 1:123000,
+  Y_star = rnorm(123000)
+)
+
+surveyDeclaration = declare_model(data = housing) +
+  declare_measurement(Y = as.numeric(cut(Y_star,5))) +
+  declare_inquiry(Y_bar = mean(Y)) +
+  declare_sampling(S = complete_rs(N, n = 100)) +
+  declare_estimator(Y~1, 
+                    inquiry = "Y_bar")
+```
+
+Note that we've seen almost everything in this design before. What's new?
+
+-   In our model declaration, we just passed a data frame that we created outside the model. This functionality can be very useful if you already have some data you'd like to diagnose.
+
+-   We used `declare_measurement` before the inquiry this time because we want to measure on a scale of 1 to 5. That's what is happening inside the function.
+
+-   We used a different function `complete_rs` which stands for complete random sampling.
+
+-   Our estimator looks a little funny, but it just means that we are taking the average.
+
+We can now declare the diagnosands of interests. A common one for surveys is the bias of the design.
+
+```{r}
+bias = declare_diagnosands(
+  bias = mean(estimate - estimand)
+)
+diagnose_design(surveyDeclaration, diagnosands = bias)
+```
+
+Happily, our design shows no bias.
+
+#### Challenge
+
+The most common threat to a valid inference about a population in a randomized sample is that some people will not respond. If the people who do not respond are also more/less likely to support new housing construction our survey will be biased. The literature often terms this "selection bias" because some survey respondents are selecting not to respond when sampled.
+
+Let's show this by adding some dependence to our answer. Suppose that individuals who support new housing construction (have a value of Y \> 3) do not answer our survey. What happens to the bias in our survey? *Hint: You should put another measurement declaration after sampling.*
+
+```{r}
+missingSurveyDeclaration = ...
+
+diagnose_design(missingSurveyDeclaration, diagnosands = bias)
+```
+
+### Two-arm Randomized Experiment 
+
+The most common experiment is the two-arm randomized experiment. It's so common that multiple fields have their own name for it (A/B tests, Treatment/Control trial, active/passive treatment). All two-arm randomized trials have in common that subjects in the treatment are randomly assigned to one of two conditions and that the model includes just two potential outcomes for each unit. The data strategy randomly assigns which of these potential outcomes will be revealed.
+
+In the MIDA framework:
+
+-   The model has fixed number *N* subjects. Here we will have 100. Each subject has two potential outcomes, one under treatment and one under control. None of the units potential outcomes are affected by any other unit and all of them are defined with respect to the same treatments (this is the "stable unit treatment value assumption" or SUTVA).
+
+-    Because the model has a fixed sample, the inquiry is also defined at the sample level. We are most often interested in the sample average treatment effect, which is the average difference between the treated and untreated potential outcomes for the units in the sample. $$E[Y_i(1) - E[Y_i(0]$$.
+
+-   The data strategy uses complete random assignment to assign the units to treatment or control.
+
+-   The answer strategy is the difference in means estimator, or simply plugging in the average in the treatment control and subtracting the average in the control group.
+
+Here it is in code
+
+```{r}
+twoArmDeclaration = declare_model(
+  N = 100, # number of subjects
+  Noise = rnorm(N), # unobserved variable error
+  potential_outcomes(Y~0.5*Z + Noise)) + ## TE of 0.5
+  declare_inquiry(ATE = mean(Y_Z_1 - Y_Z_0)) +
+  declare_assignment(Z = complete_ra(N, prob = 0.5)) +
+  declare_measurement(Y = reveal_outcomes(Y~Z))+
+  declare_estimator(Y~Z,
+                    .method = lm_robust,
+                    .summary = tidy,
+                    inquiry = "ATE")
+diagnose_design(twoArmDeclaration)
+```
+
+#### Adding covariates 
+
+We see that when our treatment is randomized, our estimator is unbiased for the quantity of interest, however, our standard deviation is somewhat high. In an experiment, we might measure pre-treatment (and pre-treatment only!) covariates to reduce the variance of our estimate. In the literature, this is often referred to as "improving precision."
+
+Here's an example that adds a pre-treatment covariate to our design.
+
+```{r}
+twoArmDeclaration = declare_model(
+  N = 100, # number of subjects
+  Noise = rnorm(N), # unobserved variable error
+  X = rnorm(N)+ Noise,
+  potential_outcomes(Y~0.5*Z + Noise)) + ## TE of 0.5
+  declare_inquiry(ATE = mean(Y_Z_1 - Y_Z_0)) +
+  declare_assignment(Z = complete_ra(N, prob = 0.5)) +
+  declare_measurement(Y = reveal_outcomes(Y~Z))+
+  declare_estimator(Y~Z+X,
+                    .method = lm_robust,
+                    .summary = tidy,
+                    inquiry = "ATE")
+diagnose_design(twoArmDeclaration)
+```
+
+Note that adding a covariate did not affect bias because the treatment was randomized. What it did do was improve all of other measures. When considering your own experimental research, it's wise to measure pre-treatment covariates for just this reason.
+
+#### Challenge 
+
+Use any of these designs to craft a data declaration relevant to your own research. Be sure to define the model, inquiry, data strategy, and answer. Feel free to share with other participants!
+
+## Where to go from here 
+
+By its very nature, this workshop is an introduction to research design. There are lots of functionality in the `DeclareDesign` package that we did not discover. We recommend checking out the [DeclareDesign Design Library](https://declaredesign.org/r/designlibrary/) for more information and inspiration.
